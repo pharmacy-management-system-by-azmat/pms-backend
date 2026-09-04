@@ -9,7 +9,7 @@ from rest_framework import permissions, serializers, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
-from accounts.models import CustomUser
+from accounts.models import CustomUser, PharmacySettings
 from analytics.models import StockAuditLog
 from customers.models import Customer
 from inventory.models import Batch, Category, Medicine, MedicineReference
@@ -40,6 +40,13 @@ class MyProfileSerializer(serializers.ModelSerializer):
         model = CustomUser
         fields = ('id', 'username', 'email', 'first_name', 'last_name', 'role', 'phone', 'date_joined', 'last_login')
         read_only_fields = ('id', 'username', 'role', 'date_joined', 'last_login')
+
+
+class PharmacySettingsSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = PharmacySettings
+        fields = '__all__'
+        read_only_fields = ('id', 'updated_at')
 
 
 class CustomerSerializer(serializers.ModelSerializer):
@@ -230,6 +237,23 @@ class UserViewSet(BaseModelViewSet):
             return Response(MyProfileSerializer(request.user).data)
 
         serializer = MyProfileSerializer(request.user, data=request.data, partial=True)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(serializer.data)
+
+
+class SettingsViewSet(viewsets.ViewSet):
+    permission_classes = [permissions.IsAuthenticated]
+    serializer_class = PharmacySettingsSerializer
+
+    def list(self, request):
+        return Response(self.serializer_class(PharmacySettings.load()).data)
+
+    @action(detail=False, methods=['patch'], url_path='update')
+    def update_settings(self, request):
+        if request.user.effective_role != CustomUser.Role.ADMIN:
+            return Response({'detail': 'Only administrators can update pharmacy settings.'}, status=403)
+        serializer = self.serializer_class(PharmacySettings.load(), data=request.data, partial=True)
         serializer.is_valid(raise_exception=True)
         serializer.save()
         return Response(serializer.data)

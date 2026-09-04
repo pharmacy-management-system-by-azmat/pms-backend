@@ -17,6 +17,7 @@ from .api import (
 	PurchaseOrderViewSet,
 	SaleOrderItemViewSet,
 	SaleOrderViewSet,
+    SettingsViewSet,
 	StockAuditLogViewSet,
 	SupplierViewSet,
 	UserViewSet,
@@ -24,6 +25,7 @@ from .api import (
 
 router = DefaultRouter()
 router.register('users', UserViewSet)
+router.register('settings', SettingsViewSet, basename='settings')
 router.register('categories', CategoryViewSet)
 router.register('customers', CustomerViewSet)
 router.register('medicines', MedicineViewSet)
