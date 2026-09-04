@@ -1,0 +1,8 @@
+Django==6.1
+djangorestframework==3.18.0
+djangorestframework-simplejwt==5.5.1
+drf-spectacular==0.30.0
+django-cors-headers==4.9.0
+fastapi==0.141.1
+uvicorn==0.52.4
+Pillow==12.3.0
